@@ -86,7 +86,7 @@ JD_NICE_TO_HAVES = {
 
 JD_NICE_KEYWORDS = {
     "llm fine-tuning / lora": [
-        "fine-tun", "lora", "qlora", "peft", "llm",
+        "fine-tun", "lora", "qlora", "peft", "llm", "llms",
     ],
     "learning-to-rank / xgboost": [
         "learning to rank", "xgboost", "ltr", "lambdamart", "ranklib",
