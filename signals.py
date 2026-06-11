@@ -121,18 +121,27 @@ def _parse_company_size(size_str) -> int:
         return 0
 
 
+# Checked most-senior first so "Senior Principal Engineer" resolves to
+# principal (4), not senior (3). Word boundaries prevent "intern" from
+# matching "international" or "internal".
+_SENIORITY_LEVELS = [
+    (6, ["vp", "vice president", "chief", "cto", "cio", "ceo"]),
+    (5, ["head", "director"]),
+    (4, ["principal", "staff"]),
+    (3, ["senior", "lead", "manager", "architect", "sr"]),
+    (1, ["junior", "associate", "fresher", "jr"]),
+    (0, ["intern", "trainee"]),
+]
+_SENIORITY_PATTERNS = [
+    (level, re.compile(r"\b(" + "|".join(re.escape(k) for k in kws) + r")\b"))
+    for level, kws in _SENIORITY_LEVELS
+]
+
+
 def _title_seniority_level(title: str) -> int:
     t = title.lower().strip()
-    seniority_map = [
-        ("intern", 0), ("trainee", 0),
-        ("junior", 1), ("associate", 1), ("fresher", 1),
-        ("senior", 3), ("lead", 3), ("manager", 3), ("architect", 3),
-        ("principal", 4), ("staff", 4),
-        ("head", 5), ("director", 5),
-        ("vp", 6), ("vice president", 6), ("chief", 6), ("cto", 6),
-    ]
-    for kw, level in seniority_map:
-        if kw in t:
+    for level, pattern in _SENIORITY_PATTERNS:
+        if pattern.search(t):
             return level
     return 2
 
@@ -200,7 +209,7 @@ def compute_career_quality(candidate: dict) -> float:
 
     median_tenure = _median_tenure_months(candidate)
     if median_tenure >= 36:
-        score += 0.20
+        score += 0.25
     elif median_tenure >= 24:
         score += 0.20
     elif median_tenure >= 18:
