@@ -75,16 +75,24 @@ def _generate_reasoning(candidate: dict, score: float, subscores: dict, penalty_
     return reasoning.strip()
 
 
-def _load_candidate_by_id(target_id: str) -> dict:
+def load_candidates_by_ids(target_ids) -> dict:
+    """Single pass over the JSONL collecting all requested candidates,
+    instead of rescanning the 100K-line file once per id."""
+    remaining = set(target_ids)
+    found = {}
     with open(CANDIDATES_PATH, "r", encoding="utf-8") as f:
         for line in f:
+            if not remaining:
+                break
             line = line.strip()
             if not line:
                 continue
             cand = json.loads(line)
-            if cand.get("candidate_id") == target_id:
-                return cand
-    return None
+            cid = cand.get("candidate_id")
+            if cid in remaining:
+                found[cid] = cand
+                remaining.discard(cid)
+    return found
 
 
 def main():
@@ -133,10 +141,8 @@ def main():
     print(f"Top score: {top_k_pairs[0][0]:.4f}, bottom: {top_k_pairs[-1][0]:.4f}")
 
     print("Loading top candidates for reasoning ...")
-    top_candidates = []
-    for score_val, cid in top_k_pairs:
-        cand = _load_candidate_by_id(cid)
-        top_candidates.append(cand)
+    candidates_by_id = load_candidates_by_ids(cid for _, cid in top_k_pairs)
+    top_candidates = [candidates_by_id.get(cid) for _, cid in top_k_pairs]
 
     output_path = OUTPUT_DIR / "submission.csv"
     print(f"Writing {output_path} ...")

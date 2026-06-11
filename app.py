@@ -17,7 +17,12 @@ from config import (
     TOP_K,
     WEIGHTS,
 )
-from rank import _generate_reasoning, _load_candidate_by_id
+from rank import _generate_reasoning, load_candidates_by_ids
+
+
+@st.cache_data(show_spinner=False)
+def cached_candidates(ids: tuple) -> dict:
+    return load_candidates_by_ids(ids)
 
 st.set_page_config(page_title="RecruiterIQ", layout="wide")
 
@@ -125,11 +130,13 @@ def main():
 
             rank_pairs, subscore_matrix, all_scores = compute_ranking(emb, ids, jd_emb, subs, WEIGHTS)
 
+        candidates_by_id = cached_candidates(tuple(cid for _, cid in rank_pairs))
+
         with tab1:
             st.subheader(f"Top {TOP_K} Candidates")
             for rank_idx, (score_val, cid) in enumerate(rank_pairs):
                 rank = rank_idx + 1
-                cand = _load_candidate_by_id(cid)
+                cand = candidates_by_id.get(cid)
                 ss = subs.get(cid, {})
                 if cand is None:
                     continue
