@@ -309,7 +309,8 @@ SignalHire/
 ├── 📁 output/
 │   └── submission.csv        # Final validated output
 │
-├── 📁 Documentation/         # PRD, TRD, App Flow, Backend Schema
+├── 📄 Documentation.md       # Complete project documentation
+├── 📁 Initial-Documentation/ # Original planning docs (PRD, TRD, etc.)
 ├── requirements.txt
 ├── Dockerfile
 └── GOOD_FIRST_ISSUES.md      # Starter tasks for contributors

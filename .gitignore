@@ -1,4 +1,6 @@
 .venv
+venv
+.serena
 .vscode
 /data
 /output
