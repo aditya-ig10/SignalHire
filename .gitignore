@@ -1,5 +1,6 @@
 .venv
 venv
+site/venv
 .serena
 .vscode
 /data
